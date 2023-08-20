@@ -6,6 +6,34 @@ import { useRouter } from 'next/router'
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const router = useRouter()
 
+    const jaErrorMessages = (errorsName) => {
+        const result = {};
+
+        Object.keys(errorsName).forEach((fieldName) => {
+            result[fieldName] = errorsName[fieldName].map((error) => {
+                switch (error) {
+                    case 'validation.required':
+                        return '必須項目です';
+                    case 'validation.string':
+                        return '文字列で入力してください';
+                    case 'validation.unique':
+                        return '既に登録されています';
+                    case 'validation.confirmed':
+                        return '確認用と一致しません';
+                    case 'validation.min.string':
+                        return '文字数が足りません';
+                    case 'validation.max.string':
+                        return '文字数オーバーです';
+                    case 'validation.email':
+                        return '正しいEメールを入力してください';
+                    default:
+                        return error;
+                }
+            });
+        });
+        return result;
+    }
+
     const { data: user, error, mutate } = useSWR('/api/user', () =>
         axios
             .get('/api/user')
@@ -30,7 +58,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .catch(error => {
                 if (error.response.status !== 422) throw error
 
-                setErrors(error.response.data.errors)
+                setErrors(jaErrorMessages(error.response.data.errors))
             })
     }
 
@@ -46,7 +74,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .catch(error => {
                 if (error.response.status !== 422) throw error
 
-                setErrors(error.response.data.errors)
+                setErrors(jaErrorMessages(error.response.data.errors))
             })
     }
 
@@ -62,7 +90,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .catch(error => {
                 if (error.response.status !== 422) throw error
 
-                setErrors(error.response.data.errors)
+                setErrors(jaErrorMessages(error.response.data.errors))
             })
     }
 
@@ -80,7 +108,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .catch(error => {
                 if (error.response.status !== 422) throw error
 
-                setErrors(error.response.data.errors)
+                setErrors(jaErrorMessages(error.response.data.errors))
             })
     }
 
